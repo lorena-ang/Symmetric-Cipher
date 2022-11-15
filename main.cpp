@@ -10,7 +10,33 @@
 #include<vector>
 using namespace std;
 
-char alphabet[27] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', '1', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
+char alphabet[27] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', ';', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
+
+// Encuentra el valor numérico según su posición en el alfabeo
+int findAlphabetValue(char cElem)
+{
+	// Si es la letra Ñ
+	if (cElem == ';')
+	{
+		return 14;
+	}
+	// Si es una letra antes de la Ñ
+	else if (cElem - 'A' < 14)
+	{
+		return (cElem - 'A');
+	}
+	// Si es una letra depués de la Ñ
+	else
+	{
+		return (cElem - 'A' + 1);
+	}
+}
+
+// Operación equivalente a (iC % 27) pero funciona con negativos
+int modulo(int iElem)
+{
+	return (27 + (iElem % 27)) % 27;
+}
 
 string caesarCipherEncryption(string sMessage, int iKey)
 {
@@ -21,30 +47,11 @@ string caesarCipherEncryption(string sMessage, int iKey)
 	{
 		cElem = toupper(sMessage[i]);
 		
-		// Si es una Ñ
-		if (cElem == '1')
-		{
-			iC = 14 + (iKey % 27);
-		}
-		// Si no es una Ñ
-		else
-		{
-			// Si es una letra antes de la Ñ
-			if (cElem - 'A' < 14)
-			{
-				iC = (cElem - 'A') + (iKey % 27);
-			}
-			// Si es una letra depués de la Ñ
-			else
-			{
-				iC = (cElem - 'A' + 1) + (iKey % 27);
-			}
-		}
-		
+		iC = findAlphabetValue(cElem) + (iKey % 27);
+
 		if (iC >= 27 || iC < 0)
 		{
-			// Operación equivalente a (iC % 27) pero funciona con negativos
-			iC = (27 + (iC % 27)) % 27;
+			iC = modulo(iC);
 		}
 		cElem = alphabet[iC];
 		
@@ -63,30 +70,11 @@ string caesarCipherDecryption(string sMessage, int iKey)
 	{
 		cElem = toupper(sMessage[i]);
 		
-		// Si es una Ñ
-		if (cElem == '1')
-		{
-			iC = 14 - (iKey % 27);
-		}
-		// Si no es una Ñ
-		else
-		{
-			// Si es una letra antes de la Ñ
-			if (cElem - 'A' < 14)
-			{
-				iC = (cElem - 'A') - (iKey % 27);
-			}
-			// Si es una letra depués de la Ñ
-			else
-			{
-				iC = (cElem - 'A' + 1) - (iKey % 27);
-			}
-		}
-		
+		iC = findAlphabetValue(cElem) - (iKey % 27);
+
 		if (iC >= 27 || iC < 0)
 		{
-			// Operación equivalente a (iC % 27) pero funciona con negativos
-			iC = (27 + (iC % 27)) % 27;
+			iC = modulo(iC);
 		}
 		
 		cElem = alphabet[iC];
@@ -95,7 +83,6 @@ string caesarCipherDecryption(string sMessage, int iKey)
 	
 	return sMessage;
 }
-
 
 string vigenereCipherEncryption(string sMessage, string sKey)
 {
@@ -112,38 +99,10 @@ string vigenereCipherEncryption(string sMessage, string sKey)
 		}
 		
 		cElemMes = toupper(sMessage[i]);
-		// Si es la Ñ
-		if (cElemMes == '1')
-		{
-			iTempMessage[i] = 14;
-		}
-		// Si es una letra antes de la Ñ
-		else if (cElemMes - 'A' < 14)
-		{
-			iTempMessage[i] = (cElemMes - 'A');
-		}
-		// Si es una letra depués de la Ñ
-		else
-		{
-			iTempMessage[i] = (cElemMes - 'A' + 1);
-		}
+		iTempMessage[i] = findAlphabetValue(cElemMes);
 		
 		cElemKey = toupper(sKey[k]);
-		// Si es la Ñ
-		if (cElemKey == '1')
-		{
-			iTempKey[i] = 14;
-		}
-		// Si es una letra antes de la Ñ
-		else if (cElemKey - 'A' < 14)
-		{
-			iTempKey[i] = (cElemKey - 'A');
-		}
-		// Si es una letra depués de la Ñ
-		else
-		{
-			iTempKey[i] = (cElemKey - 'A' + 1);
-		}
+		iTempKey[i] = findAlphabetValue(cElemKey);
 	}
 	
 	for (int i = 0; i < sMessage.length(); i++)
@@ -170,58 +129,113 @@ string vigenereCipherDecryption(string sMessage, string sKey)
 		}
 		
 		cElemMes = toupper(sMessage[i]);
-		// Si es la Ñ
-		if (cElemMes == '1')
-		{
-			iTempMessage[i] = 14;
-		}
-		// Si es una letra antes de la Ñ
-		else if (cElemMes - 'A' < 14)
-		{
-			iTempMessage[i] = (cElemMes - 'A');
-		}
-		// Si es una letra depués de la Ñ
-		else
-		{
-			iTempMessage[i] = (cElemMes - 'A' + 1);
-		}
+		iTempMessage[i] = findAlphabetValue(cElemMes);
 		
 		cElemKey = toupper(sKey[k]);
-		// Si es la Ñ
-		if (cElemKey == '1')
-		{
-			iTempKey[i] = 14;
-		}
-		// Si es una letra antes de la Ñ
-		else if (cElemKey - 'A' < 14)
-		{
-			iTempKey[i] = (cElemKey - 'A');
-		}
-		// Si es una letra depués de la Ñ
-		else
-		{
-			iTempKey[i] = (cElemKey - 'A' + 1);
-		}
+		iTempKey[i] = findAlphabetValue(cElemKey);
 	}
 	
 	for (int i = 0; i < sMessage.length(); i++)
 	{
-		// Operación equivalente a ((iTempMessage[i] - iTempKey[i]) % 27) pero funciona con negativos
-		iC = (27 + ((iTempMessage[i] - iTempKey[i]) % 27)) % 27;
+		iC = modulo(iTempMessage[i] - iTempKey[i]);
 		sMessage[i] = alphabet[iC];
 	}
 	
 	return sMessage;
 }
 
-string hillCipherEncryption(string sMessage, int iKey)
+string hillCipherEncryption(string sMessage, string sKey)
 {
+	int iTempMessage1[2], iTempMessage2[2];
+	int iTempKey[2][2];
+	
+	// Guardar números de cada letra de message y key según alfabeto
+	for (int i = 0, iRow = 0, iCol = 0; i < 4; i++)
+	{
+		char cElemMes = toupper(sMessage[i]);
+		char cElemKey = toupper(sKey[i]);
+		
+		iTempKey[iRow][iCol] = findAlphabetValue(cElemKey);
+		
+		if (i < 2)
+		{
+			iTempMessage1[iCol] = findAlphabetValue(cElemMes);
+		}
+		else
+		{
+			iTempMessage2[iCol] = findAlphabetValue(cElemMes);
+		}
+		
+		if (i == 1)
+		{
+			iRow++;
+			iCol = 0;
+		}
+		else
+		{
+			iCol++;
+		}
+	}
+	
+	// Realizar cálculo a través de multiplicación matricial
+	for (int i = 0, k = 0; i < 4; i++, k++)
+	{
+		int iC;
+		
+		if (k == 2)
+		{
+			k = 0;
+		}
+		
+		if (i < 2)
+		{
+			iC = modulo(iTempKey[k][0] * iTempMessage1[0] + iTempKey[k][1] * iTempMessage1[1]);
+		}
+		else
+		{
+			iC = modulo(iTempKey[k][0] * iTempMessage2[0] + iTempKey[k][1] * iTempMessage2[1]);
+		}
+		
+		sMessage[i] = alphabet[iC];
+	}
 	
 	return sMessage;
 }
 
-string hillCipherDecryption(string sMessage, int iKey)
+string hillCipherDecryption(string sMessage, string sKey)
 {
+	int iTempMessage1[2], iTempMessage2[2];
+	int iTempKey[2][2];
+	
+	// Guardar números de cada letra de message y key según alfabeto
+	for (int i = 0, iRow = 0, iCol = 0; i < 4; i++)
+	{
+		char cElemMes = toupper(sMessage[i]);
+		char cElemKey = toupper(sKey[i]);
+		
+		iTempKey[iRow][iCol] = findAlphabetValue(cElemKey);
+		
+		if (i < 2)
+		{
+			iTempMessage1[iCol] = findAlphabetValue(cElemMes);
+		}
+		else
+		{
+			iTempMessage2[iCol] = findAlphabetValue(cElemMes);
+		}
+		
+		if (i == 1)
+		{
+			iRow++;
+			iCol = 0;
+		}
+		else
+		{
+			iCol++;
+		}
+	}
+	
+	// falta el cálculo
 	
 	return sMessage;
 }
@@ -337,9 +351,9 @@ int main(int argc, const char * argv[])
 						cout << "Ingresa el mensaje a encriptar: ";
 						cin >> sMessage;
 						cout << "Ingresa la llave: ";
-						cin >> iKey;
+						cin >> sKey;
 						
-						sEncryptedMessage = hillCipherEncryption(sMessage, iKey);
+						sEncryptedMessage = hillCipherEncryption(sMessage, sKey);
 						cout << "El mensaje encriptado es: " << sEncryptedMessage << endl;
 					}
 					else if (cOpcion2 == '2')
@@ -347,9 +361,9 @@ int main(int argc, const char * argv[])
 						cout << "Ingresa el mensaje a desencriptar: ";
 						cin >> sMessage;
 						cout << "Ingresa la llave: ";
-						cin >> iKey;
+						cin >> sKey;
 						
-						sDecryptedMessage = hillCipherDecryption(sMessage, iKey);
+						sDecryptedMessage = hillCipherDecryption(sMessage, sKey);
 						cout << "El mensaje desencriptado es: " << sDecryptedMessage << endl;
 					}
 					else
@@ -372,3 +386,15 @@ int main(int argc, const char * argv[])
 	
 	return 0;
 }
+
+/*
+ cout << iTempMessage1[0] << endl;
+ cout << iTempMessage1[1] << endl;
+ cout << iTempMessage2[0] << endl;
+ cout << iTempMessage2[1] << endl;
+ 
+ cout << iTempKey[0][0] << endl;
+ cout << iTempKey[0][1] << endl;
+ cout << iTempKey[1][0] << endl;
+ cout << iTempKey[1][1] << endl;
+ */
