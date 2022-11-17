@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include <cctype>
-#include<vector>
+#include <cstring>
 using namespace std;
 
 char alphabet[27] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', ';', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
