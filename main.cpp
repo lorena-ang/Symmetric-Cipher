@@ -2,7 +2,7 @@
 //  main.cpp
 //  CifradosSimetricos
 //
-//  Created by Lore Ang on 14/11/22.
+//  Created by Lorena Ang on 14/11/22.
 //
 
 #include <iostream>
@@ -87,7 +87,7 @@ string caesarCipherDecryption(string sMessage, int iKey)
 string vigenereCipherEncryption(string sMessage, string sKey)
 {
 	char cElemMes, cElemKey;
-	int iC, iTempMessage[sMessage.length()], iTempKey[sMessage.length()];
+	int iC, iMessage[sMessage.length()], iKey[sMessage.length()];
 	
 	// Guardar números de cada letra de message y key según alfabeto
 	for (int i = 0, k = 0; i < sMessage.length(); i++, k++)
@@ -99,15 +99,15 @@ string vigenereCipherEncryption(string sMessage, string sKey)
 		}
 		
 		cElemMes = toupper(sMessage[i]);
-		iTempMessage[i] = findAlphabetValue(cElemMes);
+		iMessage[i] = findAlphabetValue(cElemMes);
 		
 		cElemKey = toupper(sKey[k]);
-		iTempKey[i] = findAlphabetValue(cElemKey);
+		iKey[i] = findAlphabetValue(cElemKey);
 	}
 	
 	for (int i = 0; i < sMessage.length(); i++)
 	{
-		iC = (iTempMessage[i] + iTempKey[i]) % 27;
+		iC = modulo(iMessage[i] + iKey[i]);
 		sMessage[i] = alphabet[iC];
 	}
 	
@@ -117,7 +117,7 @@ string vigenereCipherEncryption(string sMessage, string sKey)
 string vigenereCipherDecryption(string sMessage, string sKey)
 {
 	char cElemMes, cElemKey;
-	int iC, iTempMessage[sMessage.length()], iTempKey[sMessage.length()];
+	int iC, iMessage[sMessage.length()], iKey[sMessage.length()];
 	
 	// Guardar números de cada letra de message y key según alfabeto
 	for (int i = 0, k = 0; i < sMessage.length(); i++, k++)
@@ -129,25 +129,53 @@ string vigenereCipherDecryption(string sMessage, string sKey)
 		}
 		
 		cElemMes = toupper(sMessage[i]);
-		iTempMessage[i] = findAlphabetValue(cElemMes);
+		iMessage[i] = findAlphabetValue(cElemMes);
 		
 		cElemKey = toupper(sKey[k]);
-		iTempKey[i] = findAlphabetValue(cElemKey);
+		iKey[i] = findAlphabetValue(cElemKey);
 	}
 	
 	for (int i = 0; i < sMessage.length(); i++)
 	{
-		iC = modulo(iTempMessage[i] - iTempKey[i]);
+		iC = modulo(iMessage[i] - iKey[i]);
 		sMessage[i] = alphabet[iC];
 	}
 	
 	return sMessage;
 }
 
+void findInverseKey(int iKey[2][2], int (&iInvKey)[2][2])
+{
+	int iTAdj[2][2], iTemp, iDet, iCalcDet;
+	
+	// Matriz transpuesta de Adj(K)
+	memcpy(iTAdj, iKey, 2*2*sizeof(int));
+	iTemp = iTAdj[0][0];
+	iTAdj[0][0] = iTAdj[1][1];
+	iTAdj[0][1] *= -1;
+	iTAdj[1][0] *= -1;
+	iTAdj[1][1] = iTemp;
+	
+	// Determinante
+	iDet = (iKey[0][0] * iKey[1][1]) - (iKey[0][1] * iKey[1][0]);
+	
+	// Cálculo con determinante
+	iCalcDet = 28 / iDet;
+	
+	// Multiplicación de matriz y módulo
+	for (int i = 0; i < 2; i++)
+	{
+		for (int j = 0; j < 2; j++)
+		{
+			iInvKey[i][j] = iTAdj[i][j] * iCalcDet;
+			iInvKey[i][j] = modulo(iInvKey[i][j]);
+		}
+	}
+}
+
 string hillCipherEncryption(string sMessage, string sKey)
 {
-	int iTempMessage1[2], iTempMessage2[2];
-	int iTempKey[2][2];
+	int iMessage1[2], iMessage2[2], iKey[2][2];
 	
 	// Guardar números de cada letra de message y key según alfabeto
 	for (int i = 0, iRow = 0, iCol = 0; i < 4; i++)
@@ -155,15 +183,15 @@ string hillCipherEncryption(string sMessage, string sKey)
 		char cElemMes = toupper(sMessage[i]);
 		char cElemKey = toupper(sKey[i]);
 		
-		iTempKey[iRow][iCol] = findAlphabetValue(cElemKey);
+		iKey[iRow][iCol] = findAlphabetValue(cElemKey);
 		
 		if (i < 2)
 		{
-			iTempMessage1[iCol] = findAlphabetValue(cElemMes);
+			iMessage1[iCol] = findAlphabetValue(cElemMes);
 		}
 		else
 		{
-			iTempMessage2[iCol] = findAlphabetValue(cElemMes);
+			iMessage2[iCol] = findAlphabetValue(cElemMes);
 		}
 		
 		if (i == 1)
@@ -189,11 +217,11 @@ string hillCipherEncryption(string sMessage, string sKey)
 		
 		if (i < 2)
 		{
-			iC = modulo(iTempKey[k][0] * iTempMessage1[0] + iTempKey[k][1] * iTempMessage1[1]);
+			iC = modulo(iKey[k][0] * iMessage1[0] + iKey[k][1] * iMessage1[1]);
 		}
 		else
 		{
-			iC = modulo(iTempKey[k][0] * iTempMessage2[0] + iTempKey[k][1] * iTempMessage2[1]);
+			iC = modulo(iKey[k][0] * iMessage2[0] + iKey[k][1] * iMessage2[1]);
 		}
 		
 		sMessage[i] = alphabet[iC];
@@ -204,8 +232,7 @@ string hillCipherEncryption(string sMessage, string sKey)
 
 string hillCipherDecryption(string sMessage, string sKey)
 {
-	int iTempMessage1[2], iTempMessage2[2];
-	int iTempKey[2][2];
+	int iMessage1[2], iMessage2[2], iKey[2][2], iInvKey[2][2];
 	
 	// Guardar números de cada letra de message y key según alfabeto
 	for (int i = 0, iRow = 0, iCol = 0; i < 4; i++)
@@ -213,15 +240,15 @@ string hillCipherDecryption(string sMessage, string sKey)
 		char cElemMes = toupper(sMessage[i]);
 		char cElemKey = toupper(sKey[i]);
 		
-		iTempKey[iRow][iCol] = findAlphabetValue(cElemKey);
+		iKey[iRow][iCol] = findAlphabetValue(cElemKey);
 		
 		if (i < 2)
 		{
-			iTempMessage1[iCol] = findAlphabetValue(cElemMes);
+			iMessage1[iCol] = findAlphabetValue(cElemMes);
 		}
 		else
 		{
-			iTempMessage2[iCol] = findAlphabetValue(cElemMes);
+			iMessage2[iCol] = findAlphabetValue(cElemMes);
 		}
 		
 		if (i == 1)
@@ -235,7 +262,29 @@ string hillCipherDecryption(string sMessage, string sKey)
 		}
 	}
 	
-	// falta el cálculo
+	findInverseKey(iKey, iInvKey);
+	
+	// Realizar cálculo a través de multiplicación matricial
+	for (int i = 0, k = 0; i < 4; i++, k++)
+	{
+		int iC;
+		
+		if (k == 2)
+		{
+			k = 0;
+		}
+		
+		if (i < 2)
+		{
+			iC = modulo(iInvKey[k][0] * iMessage1[0] + iInvKey[k][1] * iMessage1[1]);
+		}
+		else
+		{
+			iC = modulo(iInvKey[k][0] * iMessage2[0] + iInvKey[k][1] * iMessage2[1]);
+		}
+		
+		sMessage[i] = alphabet[iC];
+	}
 	
 	return sMessage;
 }
@@ -272,7 +321,7 @@ int main(int argc, const char * argv[])
 					{
 						cout << "Ingresa el mensaje a encriptar: ";
 						cin >> sMessage;
-						cout << "Ingresa la llave: ";
+						cout << "Ingresa la llave numérica: ";
 						cin >> iKey;
 						
 						sEncryptedMessage = caesarCipherEncryption(sMessage, iKey);
@@ -282,7 +331,7 @@ int main(int argc, const char * argv[])
 					{
 						cout << "Ingresa el mensaje a desencriptar: ";
 						cin >> sMessage;
-						cout << "Ingresa la llave: ";
+						cout << "Ingresa la llave numérica: ";
 						cin >> iKey;
 						
 						sDecryptedMessage = caesarCipherDecryption(sMessage, iKey);
@@ -386,15 +435,3 @@ int main(int argc, const char * argv[])
 	
 	return 0;
 }
-
-/*
- cout << iTempMessage1[0] << endl;
- cout << iTempMessage1[1] << endl;
- cout << iTempMessage2[0] << endl;
- cout << iTempMessage2[1] << endl;
- 
- cout << iTempKey[0][0] << endl;
- cout << iTempKey[0][1] << endl;
- cout << iTempKey[1][0] << endl;
- cout << iTempKey[1][1] << endl;
- */
